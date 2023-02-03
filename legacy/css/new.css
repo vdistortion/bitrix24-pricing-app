@@ -1,0 +1,86 @@
+.bx-btn {
+  cursor: pointer;
+  display: inline-block;
+  font-size: 12px;
+  outline: 0;
+  padding: 0 20px;
+  text-transform: uppercase;
+  transition: background-color 0.2s linear;
+  border: 0;
+  height: 40px;
+  line-height: 40px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.bx-btn__blue {
+  color: #fff;
+  background-color: #3bc8f5;
+}
+.bx-btn__blue:hover {
+  background-color: #3fddff;
+}
+.bx-btn__green {
+  color: #535c69;
+  background-color: #bbed21;
+}
+.bx-btn__green:hover {
+  background-color: #d2f95f;
+}
+.deadline {
+  min-height: 35px;
+  display: inline-block;
+  min-width: 190px;
+  position: relative;
+  border: 1px solid #c6cdd3;
+  border-radius: 2px;
+  padding: 5px 5px 0;
+  background-color: #fff;
+}
+.deadline:after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 15px;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAPBAMAAAAbqIIhAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAJ1BMVEWmqa7////5+fnU1tnb3N7m5+iboKTr7O3v8PGnq7DNz9Gusra0t7pnGjLpAAAAAXRSTlP7aonz8gAAAAFiS0dEAf8CLd4AAAAHdElNRQfiBhQEKSnGnooaAAAAY0lEQVQI12MQFFRWFBR0FBRkEBQMCxQUTweyRNLaytIyZiQ4MgikLVqWlqWVxsgglgYBicisREEQEAOxpPYoFkBYwjpFByAsQR8pTwhLZJPktIVgluTMQmmoLEwv3DwZKOsgAEF1JMjeaiDhAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTA2LTIwVDA0OjQxOjQxKzAwOjAwN0WVfwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0wNi0yMFQwNDo0MTo0MSswMDowMEYYLcMAAAAASUVORK5CYII=");
+  background-repeat: no-repeat;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  z-index: 1;
+  opacity: 0.7;
+}
+.deadline__container {
+  width: 100%;
+  height: 38px;
+  border: 0;
+  position: absolute;
+  margin: -4px -5px 0;
+  line-height: 36px;
+  background-color: #fff;
+  font-size: 15px;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+.deadline__input {
+  padding-right: 32px;
+  height: 30px;
+  line-height: 30px;
+  position: absolute;
+  font-size: 15px;
+  border: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin: auto;
+  padding: 0 8px;
+  background-color: transparent;
+  z-index: 2;
+  outline: 0;
+  color: #535c69;
+  cursor: pointer;
+}
