@@ -16,6 +16,9 @@ body {
   min-height: 25px;
   padding: 0 15px 10px 0;
 }
+.prc-breadcrumbs.hidden {
+  display: none;
+}
 .prc-breadcrumbs__phase {
   border-bottom: 1px solid transparent;
   transition: border-bottom-color .3s linear;
@@ -23,6 +26,9 @@ body {
   vertical-align: middle;
   display: inline-block;
   color: #7f7f7f;
+}
+.prc-breadcrumbs__phase.bc-hidden {
+  display: none;
 }
 .prc-breadcrumbs__phase:hover {
   border-bottom-color: #7f7f7f;
@@ -44,7 +50,7 @@ body {
   margin: 0 5px;
   vertical-align: top;
 }
-[data-view="deal"] .view-deal {
+.prc-breadcrumbs__separator.bc-hidden {
   display: none;
 }
 

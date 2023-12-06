@@ -3,8 +3,8 @@ var constant = {
       PREFIX: 'CRM: РАСЦЕНКА - ', // шаблон заголовка
       RUN_AGAIN: 'Что-то пошло не так!',
       SUCCESS_TASK: 'Готово'
-    },
-    ess = {
+    };
+var ess = {
       root: $('.js-root'), // корень
       error: $('.js-errors'), // поле для показа ошибок
       dealLink: $('.js-deal-link'), // сделка
@@ -22,8 +22,8 @@ var constant = {
       uploadFiles: $('.js-upload-files'), // выбрать файлы
       taskCreate: $('.js-task-create'), // кнопка создания задачи
       taskLink: $('.js-task-link') // созданная задачи
-    },
-    phase2 = {
+    };
+var phase2 = {
       getTaskTitle: $('.js-get-tasktitle'), // js-tasktitle
       getDescription: $('.js-get-description'), // js-getdescription
       table: $('.js-table'), // root
@@ -39,10 +39,16 @@ var constant = {
       priceItem: $('.js-price-item'), // template__new-button>span
       priceButton: $('.js-price-item-button'), // [role="button"]
       deletelement: $('.js-deletelement')
-    },
-    app = ess.root.attr('data-app-id'),
-    getDealID = ess.root.attr('data-deal-id'),
-    getTaskID = ess.root.attr('data-task-id'),
-    getUserID = ess.root.attr('data-user-id'),
-    getSaveID = ess.root.attr('data-save-id'),
-    resultAnswerResult; // При создании задачи сменим на её id
+    };
+var app = ess.root.attr('data-app-id');
+var getDealID = ess.root.attr('data-deal-id');
+var getTaskID = ess.root.attr('data-task-id');
+var getUserID = ess.root.attr('data-user-id');
+var getSaveID = ess.root.attr('data-save-id');
+
+var getFullPathToApp = function(file) {
+  return "https://szdl.ru/app/pricing-update/" + file;
+}
+var isTeamPortal = function() {
+  return BX24.getDomain() === "team.bitrix24.ru";
+}

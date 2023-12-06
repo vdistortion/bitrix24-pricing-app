@@ -1,7 +1,5 @@
 <?php
 
-define('PHASE_TITLE', 'Шаг 3: Генерация КП');
-
 require_once "inc/header.inc.php";
 
 ?>

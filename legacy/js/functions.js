@@ -1,9 +1,16 @@
 // Получаем id приложения
-function getAppID(){
-  BX24.callMethod('app.info', {
-    AUTH: BX24.getAuth().domain+'/rest/app.info?auth='+BX24.getAuth().access_token
-  }, function(res){
+function getAppID(fn){
+  BX24.callMethod('app.info', {}, function(res){
     ess.root.attr('data-app-id', res.answer.result.ID);
+    app = res.answer.result.ID;
+
+
+    BX24.callMethod('profile', {}, function(res){
+      ess.root.attr('data-user-id', res.answer.result.ID);
+      getUserID = res.answer.result.ID;
+
+      fn();
+    });
   });
 }
 
@@ -19,6 +26,33 @@ function autoDetectDeal(){
   }else{
     console.log('Что-то нет сделки. ):');
   }
+}
+
+function getPlacementInfo() {
+  var currentPlacement = {
+    entity: '',
+    entityId: '',
+    saveId: '',
+    kp: false
+  };
+  var views = {
+    REST_APP_URI: 'task',
+    CRM_DEAL_DETAIL_TAB: 'deal'
+  };
+  var placementInfo = BX24.placement.info();
+  if (views[placementInfo.placement]) currentPlacement.entity = views[placementInfo.placement];
+
+  if(placementInfo.options) {
+    if (placementInfo.options.KP) {
+      currentPlacement.entity = 'deal';
+      currentPlacement.kp = true;
+    }
+    if (placementInfo.options.ID) currentPlacement.entityId = placementInfo.options.ID;
+    if (placementInfo.options.SAVE) currentPlacement.saveId = placementInfo.options.SAVE;
+  }
+  console.log({ placementInfo, currentPlacement });
+
+  return currentPlacement;
 }
 
 
@@ -146,25 +180,32 @@ function newTask(){
   ess.taskTitle.parent().css("border","none");
   ess.taskTitle.parent().css("border-bottom","1px solid #edeef0");
 
+  var TaskParams = {
+    TITLE: constant.PREFIX+ess.taskTitle.val(),
+    DESCRIPTION: ess.description.val(),
+    ALLOW_TIME_TRACKING: "Y",
+    TIME_ESTIMATE: 900, // плановое время 15 минут (60*60/4)
+    TASK_CONTROL: 'Y', // задача закрывается на контроль
+    CREATED_BY: ess.root.attr('data-manager-id'),
+    RESPONSIBLE_ID: ess.root.attr('data-dev-id'),
+    DEADLINE: ess.deadline.val().substr(0,10)+'T'+ess.deadline.val().substr(-5)+':00+03:00',
+    UF_CRM_TASK: ["D_"+ess.root.data('deal-id')]
+  };
+
+  if (isTeamPortal()) {
+    TaskParams.UF_PRICE_HOUR = constant.RATE; // ставка часа, пользовательское
+    TaskParams.UF_AUTO_378273429767 = 1; // план = факт, пользовательское
+  }
+
   BX24.callMethod(
     'task.item.add',
-    [{TITLE: constant.PREFIX+ess.taskTitle.val(),
-      DESCRIPTION: ess.description.val(),
-      UF_PRICE_HOUR: constant.RATE, // ставка часа, пользовательское
-      UF_AUTO_378273429767: 1, // план = факт, пользовательское
-      ALLOW_TIME_TRACKING: "Y",
-      TIME_ESTIMATE: 900, // плановое время 15 минут (60*60/4)
-      TASK_CONTROL: 'Y', // задача закрывается на контроль
-      CREATED_BY: ess.root.attr('data-manager-id'),
-      RESPONSIBLE_ID: ess.root.attr('data-dev-id'),
-      DEADLINE: ess.deadline.val().substr(0,10)+'T'+ess.deadline.val().substr(-5)+':00+03:00',
-      UF_CRM_TASK: ["D_"+ess.root.data('deal-id')]}],
+    [TaskParams],
     function(result){
       if(result.error()){
         ess.error.text(constant.RUN_AGAIN).show();
         BX24.fitWindow();
       }else{
-        resultAnswerResult = result.answer.result;
+        getTaskID = result.answer.result;
         uploadObj.startUpload();
 
         var href = 'https://'+BX24.getAuth().domain+'/company/personal/user/'+ess.root.attr('data-dev-id')+'/tasks/task/view/'+result.answer.result+'/';
@@ -177,7 +218,7 @@ function newTask(){
 
         BX24.callMethod(
           'task.item.update',
-          [result.answer.result, {DESCRIPTION: "[QUOTE][URL="+'https://'+BX24.getAuth().domain+"/marketplace/app/"+appid+"/?phase=2&task="+result.answer.result+"&user="+ttt+"]Расценить >>[/URL][/QUOTE]"+ess.description.val()}],
+          [result.answer.result, {DESCRIPTION: "[QUOTE][URL=/marketplace/view/"+appid+"/?params[ID]="+result.data()+"]Расценить >>[/URL][/QUOTE]"+ess.description.val()}],
           function(result){
             // console.info(result.data());
           }
@@ -482,7 +523,7 @@ function priceDone(){
     }
   });
   //'+BX24.getAuth().domain+'
-  var string = '[url=https://'+BX24.getAuth().domain+'/marketplace/app/'+ess.root.attr('data-app-id')+'/?phase=2&task='+getTaskID+'&user='+getUserID+'&save='+idSave+']Расценка проекта[/url]\n[url=https://'+BX24.getAuth().domain+'/marketplace/app/'+ess.root.attr('data-app-id')+'/?phase=3&deal='+ess.root.attr('data-deal-id')+']Формирование КП[/url]\n\n[table][tr][th]Работа[/th][th]Время[/th][th]Комментарий[/th][/tr]';
+  var string = '[url=/marketplace/view/'+ess.root.attr('data-app-id')+'/?params[ID]='+getTaskID+'&params[SAVE]='+idSave+']Расценка проекта[/url]\n[url=/marketplace/view/'+ess.root.attr('data-app-id')+'/?params[ID]='+getDealID+'&params[KP]=1]Формирование КП[/url]\n\n[table][tr][th]Работа[/th][th]Время[/th][th]Комментарий[/th][/tr]';
   for(var i = 0; i < array.length; i++){
     if(typeof array[i]['task'] !== "undefined"){
       string += '[tr][td]'+array[i]["task"]+'[/td][td]'+array[i]["time"]+'[/td][td]'+array[i]["message"]+'[/td][/tr]';

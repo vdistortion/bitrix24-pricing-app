@@ -1,7 +1,5 @@
 <?php
 
-define('PHASE_TITLE', 'Шаг 4: Генерация задач');
-
 require_once "inc/header.inc.php";
 
 ?>

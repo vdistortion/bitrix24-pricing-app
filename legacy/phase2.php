@@ -1,7 +1,5 @@
 <?php
 
-define('PHASE_TITLE', 'Шаг 2: Расценка проекта');
-
 require_once "inc/header.inc.php";
 
 ?>

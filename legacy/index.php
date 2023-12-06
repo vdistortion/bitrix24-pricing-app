@@ -1,43 +1,13 @@
+<script src="vendor/api.bitrix24.v1.js"></script>
+<script src="js/functions.js?v=<?= rand(); ?>"></script>
 <script>
-  // Получаем GET
-  function getParam(getParam){
-    var referrer = document.referrer;
-    console.log(referrer);
-    if(referrer.indexOf('?') + 1){
-      var refGet = referrer.split('?')[1];
-      var url = refGet.split('&').reduce(
-        function(p,e){
-          var a = e.split('=');
-          p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-          return p;
-        },
-        {}
-      );
-      return url[getParam];
-    }
-  }
+  var currentPlacement = getPlacementInfo();
 
-  console.log(<?=json_encode($_SERVER)?>);
-
-  debugger;
-
-  switch(getParam('phase')){
-    case '2':
-      document.location.href = "phase2.php?phase="+getParam('phase')+"&deal="+getParam('deal')+"&task="+getParam('task')+"&user="+getParam('user')+"&save="+getParam('save');
-      break;
-    case '3':
-      document.location.href = "phase3.php?phase="+getParam('phase')+"&deal="+getParam('deal');
-      break;
-    case '4':
-      document.location.href = "phase4.php?phase="+getParam('phase')+"&deal="+getParam('deal');
-      break;
-    default:
-      //document.location.href = "phase1.php?phase="+getParam('phase')+"&deal="+getParam('deal');
-		let page = prompt('какой адрес в браузере?', '');
-      if(page) {
-		  document.location.href = "phase2.php" + page;
-	  } else {
-		  document.location.href = "phase1.php?phase="+getParam('phase')+"&deal="+getParam('deal');
-      }
+  if (currentPlacement.kp) {
+    document.location.href = "phase3.php";
+  } else if (currentPlacement.entity === "task") {
+    document.location.href = "phase2.php";
+  } else {
+    document.location.href = "phase1.php";
   }
 </script>

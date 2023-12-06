@@ -2,20 +2,20 @@
   "menu": [
     {
       "name": "Сбор требований",
-      "link": "#"
+      "link": "phase1.php"
     },
     {
       "name": "Расценка проекта",
-      "link": "#",
+      "link": "phase2.php",
       "hidden": true
     },
     {
       "name": "Генерация КП",
-      "link": "#"
+      "link": "phase3.php"
     },
     {
       "name": "Генерация задач",
-      "link": "#"
+      "link": "phase4.php"
     }
   ]
 }

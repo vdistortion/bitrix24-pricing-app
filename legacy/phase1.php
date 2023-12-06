@@ -1,7 +1,5 @@
 <?php
 
-define('PHASE_TITLE', 'Шаг 1: Сбор требований');
-
 require_once "inc/header.inc.php";
 
 ?>
