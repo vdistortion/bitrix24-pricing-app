@@ -35,6 +35,7 @@ import { computed } from 'vue';
 import BxButton from 'vue-bitrix24/BxButton';
 import BxInput from 'vue-bitrix24/BxInput';
 import { usePlacementStore } from '@/stores/PlacementStore';
+import type { IPlacement } from '@/types';
 import AppLink from './AppLink.vue';
 
 const placementStore = usePlacementStore();

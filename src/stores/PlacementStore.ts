@@ -2,10 +2,11 @@ import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
 import { batch } from '@/api/bitrix';
 import config from '@/config';
+import type { IPlacement } from '@/types';
 import { useRootStore } from './RootStore';
 
 export const usePlacementStore = defineStore('placementStore', () => {
-  const placementList: Ref<IPlacements> = ref({});
+  const placementList: Ref<Record<string, IPlacement>> = ref({});
 
   const appLink = computed(() => {
     const rootStore = useRootStore();
@@ -19,7 +20,7 @@ export const usePlacementStore = defineStore('placementStore', () => {
     };
   });
 
-  function setList(list: IPlacements) {
+  function setList(list: Record<string, IPlacement>) {
     if (list) placementList.value = list;
   }
 

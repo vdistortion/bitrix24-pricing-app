@@ -25,7 +25,7 @@
         placeholder="Введите название задачи"
         size="lg"
         underline
-        :disabled="assignedTasks.length"
+        :disabled="assignedTasks.length > 0"
       ></bx-input>
     </div>
     <div class="setter-task__item">

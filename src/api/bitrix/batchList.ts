@@ -1,4 +1,5 @@
 import type { IBitrix24Library } from 'bitrix24-library';
+import type { IPlacement } from '@/types';
 import getRequestList from './requestList';
 import handlerList from './handlerList';
 
@@ -42,7 +43,7 @@ export default class BitrixBatch {
   bind(placement: string, name: string) {
     if (this.isAdmin) {
       return this.batch(this.requestList.placementBind(placement, name)).then(
-        ({ placementList }: { placementList: IPlacements }) => placementList,
+        ({ placementList }: { placementList: Record<string, IPlacement> }) => placementList,
       );
     }
     return Promise.resolve([]);
@@ -51,7 +52,7 @@ export default class BitrixBatch {
   unbind(placement: string) {
     if (this.isAdmin) {
       return this.batch(this.requestList.placementUnbind(placement)).then(
-        ({ placementList }: { placementList: IPlacements }) => placementList,
+        ({ placementList }: { placementList: Record<string, IPlacement> }) => placementList,
       );
     }
     return Promise.resolve([]);
