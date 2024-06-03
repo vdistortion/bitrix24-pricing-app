@@ -1,5 +1,4 @@
 import type { BatchRequestType, TRequestObject } from 'bitrix24-library';
-import config from '@/config';
 
 const handler = [window.location.origin, window.location.pathname].join('');
 
@@ -22,7 +21,7 @@ export default (isAdmin: boolean) => ({
         method: 'tasks.task.list',
         params: {
           filter: { ID: id },
-          select: ['ID', 'TITLE', 'DEADLINE', 'RESPONSIBLE_ID', 'UF_CRM_TASK', config.planFact],
+          select: ['ID', 'TITLE', 'DEADLINE', 'RESPONSIBLE_ID', 'UF_CRM_TASK'],
         },
       };
     } else if (entity === 'deal') {
@@ -50,7 +49,7 @@ export default (isAdmin: boolean) => ({
   },
 
   setTask(fields: any): TRequestObject {
-    const request = {
+    return {
       method: 'tasks.task.add',
       params: {
         fields: {
@@ -61,16 +60,6 @@ export default (isAdmin: boolean) => ({
         },
       },
     };
-
-    if (config.priceHour) {
-      request.params.fields[config.priceHour] = config.rate; // ставка часа, пользовательское
-    }
-
-    if (config.planFact) {
-      request.params.fields[config.planFact] = 1; // план = факт, пользовательское
-    }
-
-    return request;
   },
 
   writeComment(id: string, message: string): TRequestObject {
@@ -86,7 +75,7 @@ export default (isAdmin: boolean) => ({
   },
 
   updateTask(id: string, fields: any): TRequestObject {
-    const request = {
+    return {
       method: 'tasks.task.update',
       params: {
         taskId: id,
@@ -98,16 +87,6 @@ export default (isAdmin: boolean) => ({
         },
       },
     };
-
-    if (config.priceHour) {
-      request.params.fields[config.priceHour] = config.rate; // ставка часа, пользовательское
-    }
-
-    if (config.planFact) {
-      request.params.fields[config.planFact] = 1; // план = факт, пользовательское
-    }
-
-    return request;
   },
 
   placementList(): BatchRequestType {
