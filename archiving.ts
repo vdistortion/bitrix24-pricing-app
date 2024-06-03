@@ -1,18 +1,14 @@
-import fs from 'fs';
+import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
-import { archiveName } from './getNames.js';
+import json from './package.json';
 
 const archive = archiver('zip', { zlib: { level: 9 } });
-const output = fs.createWriteStream(archiveName);
-const path = (path) => ['dist', path].join('/');
+const output = createWriteStream(`${json.name}.zip`);
+const path = (name) => ['dist', name].join('/');
 const list = [
   {
     file: false,
     name: 'assets',
-  },
-  {
-    file: true,
-    name: 'constants.js',
   },
   {
     file: true,
@@ -26,4 +22,4 @@ list.forEach(({ file, name }) => {
 });
 
 archive.pipe(output);
-archive.finalize().then(console.info).catch(console.warn);
+archive.finalize().catch(console.warn);

@@ -1,8 +1,7 @@
-import config from '../../config';
-import env from '../../env';
+import env from '@/env';
 
 export default {
-  appCode: parseAppInfo,
+  info: parseAppInfo,
   currentUser: parseUser,
   users: parseUsers,
   deal: parseDeal,
@@ -10,11 +9,11 @@ export default {
   placementList: parsePlacementList,
 };
 
-function parseTask({ tasks }) {
+function parseTask({ tasks }: { tasks: any[] }) {
   return tasks[0];
 }
 
-function parseDeal(deals) {
+function parseDeal(deals: any[]) {
   const [deal] = deals;
 
   if (deal) {
@@ -29,18 +28,18 @@ function parseDeal(deals) {
   return null;
 }
 
-function parseAppInfo(info) {
+function parseAppInfo(info: { CODE: string }) {
   return info.CODE;
 }
 
-function parseUsers(users) {
+function parseUsers(users: any[]) {
   return users.reduce((list, user) => {
     list[user.ID] = parseUser(user);
     return list;
   }, {});
 }
 
-function parseUser(user) {
+function parseUser(user: any) {
   const { ID, NAME, LAST_NAME } = user;
   const name = NAME || LAST_NAME ? [NAME, LAST_NAME].join(' ') : `Пользователь с ID ${ID}`;
   return {
@@ -49,11 +48,11 @@ function parseUser(user) {
   };
 }
 
-function parsePlacementList(placementList) {
-  function getItem(placement, name, bind = false) {
-    return { placement, name: name || config.global.appName, bind };
+function parsePlacementList(placementList: any[]) {
+  function getItem(placement: string, name: string = '', bind = false) {
+    return { placement, name: name || env.get('APP_NAME'), bind };
   }
-  const defaultPlacement = env.get('PLACEMENT').reduce((acc, placement) => {
+  const defaultPlacement = env.get('PLACEMENT').reduce((acc: any, placement: string) => {
     acc[placement] = getItem(placement);
     return acc;
   }, {});

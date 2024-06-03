@@ -1,29 +1,11 @@
 <template>
-  <a
-    :href="dirname"
-    :download="filename"
-    title="Скачать последнюю версию"
-  >
-    <app-icon icon="mdiDownload"></app-icon>
+  <a :href="filename" :download="filename" title="Скачать последнюю версию">
+    <slot></slot>
   </a>
 </template>
 
-<script>
-import AppIcon from '../AppIcon.vue';
-import config from '../../config';
+<script setup lang="ts">
+import env from '@/env';
 
-export default {
-  computed: {
-    dirname() {
-      return [config.path.root, config.global.archiveName].join('');
-    },
-    filename() {
-      return `${config.global.appDirName}, ${new Date().toLocaleString()}.zip`;
-    },
-  },
-  components: {
-    AppIcon,
-  },
-  name: 'dev-panel-download',
-};
+const filename = [env.get('APP_NAME'), 'zip'].join('.');
 </script>

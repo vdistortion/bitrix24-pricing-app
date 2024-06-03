@@ -1,30 +1,25 @@
 <template>
   <a href="#" title="Обновить (Ctrl+R)" @click.prevent="reload">
-    <app-icon icon="mdiReload"></app-icon>
+    <slot></slot>
   </a>
 </template>
 
-<script>
-import AppIcon from '../AppIcon.vue';
+<script setup lang="ts">
+import { inject } from 'vue';
+import type { IBitrix24Library } from 'bitrix24-library';
 
-export default {
-  methods: {
-    reload() {
-      window.location.reload();
-    },
-  },
-  created() {
-    this.$BX24.bind(window, 'keydown', (e) => {
-      if (e.ctrlKey && e.code === 'KeyR') {
-        e.preventDefault();
-        this.reload();
-      }
-    });
-  },
-  inject: ['$BX24'],
-  components: {
-    AppIcon,
-  },
-  name: 'dev-panel-reload',
-};
+const $BX24: IBitrix24Library | undefined = inject('$BX24');
+
+if ($BX24) {
+  $BX24.bind(window, 'keydown', (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.code === 'KeyR') {
+      e.preventDefault();
+      reload();
+    }
+  });
+}
+
+function reload() {
+  window.location.reload();
+}
 </script>

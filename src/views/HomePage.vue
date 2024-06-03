@@ -3,18 +3,12 @@
   <setter-task v-else></setter-task>
 </template>
 
-<script>
-import { mapState } from 'pinia';
-import { useRootStore } from '../stores/RootStore';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRootStore } from '@/stores/RootStore';
 import ProjectPrice from '../components/steps/ProjectPrice.vue';
 import SetterTask from '../components/steps/SetterTask.vue';
 
-export default {
-  computed: mapState(useRootStore, ['isTask']),
-  components: {
-    ProjectPrice,
-    SetterTask,
-  },
-  name: 'home-page',
-};
+const store = useRootStore();
+const isTask = computed(() => store.isTask);
 </script>

@@ -1,33 +1,30 @@
 <template>
   <bx-alert
-    v-if="error"
+    v-if="data.error"
     title=""
     size="xs"
     color="danger"
     icon="warning"
     @close="alertClose"
-  >{{ errorText }}</bx-alert>
+    >{{ data.errorText }}</bx-alert
+  >
   <form class="setter-task" @submit.prevent>
     <div class="setter-task__item">
       <bx-input
-        v-model="title"
+        v-model="data.title"
         placeholder="Введите название задачи"
         size="lg"
         underline
       ></bx-input>
     </div>
     <div class="setter-task__item">
-      <bx-textarea
-        v-model="description"
-        resize="no"
-        style="width: 100%;"
-      ></bx-textarea>
+      <bx-textarea v-model="data.description" resize="no" style="width: 100%"></bx-textarea>
     </div>
     <ul class="form-input-group">
       <li v-if="!isDeal" class="form-input-group__item">
         <span class="form-input-group__title">Сделка</span>
         <bx-entity-selector
-          :list="deal"
+          :list="data.deal"
           displayField="title"
           inline
           clickable
@@ -39,7 +36,7 @@
       <li class="form-input-group__item">
         <span class="form-input-group__title">Постановщик</span>
         <bx-entity-selector
-          :list="manager"
+          :list="data.manager"
           inline
           clickable
           @add="onAddManager"
@@ -49,10 +46,10 @@
       </li>
       <li v-if="!assignedTasks.length" class="form-input-group__item">
         <span class="form-input-group__title">
-          {{ responsible.length > 1 ? 'Ответственные' : 'Ответственный' }}
+          {{ data.responsible.length > 1 ? 'Ответственные' : 'Ответственный' }}
         </span>
         <bx-entity-selector
-          :list="responsible"
+          :list="data.responsible"
           inline
           multiple
           clickable
@@ -64,7 +61,7 @@
       <li class="form-input-group__item">
         <span class="form-input-group__title">Крайний срок</span>
         <bx-input-date
-          v-model="deadline"
+          v-model="data.deadline"
           format="dd.MM.yyyy 17:00"
           placeholder="Нет крайнего срока"
           class="datepicker"
@@ -72,278 +69,295 @@
       </li>
     </ul>
     <div class="setter-task__submit">
-      <bx-button
-        v-if="assignedTasks.length"
-        color="success"
-        type="submit"
-        @click="onSubmitUpdate"
-      >
-        Обновить {{ responsible.length > 1 ? 'задачи' : 'задачу' }} (Ctrl+Enter)
+      <bx-button v-if="assignedTasks.length" color="success" type="submit" @click="onSubmitUpdate">
+        Обновить {{ data.responsible.length > 1 ? 'задачи' : 'задачу' }} (Ctrl+Enter)
       </bx-button>
-      <bx-button
-        v-else
-        color="success"
-        type="submit"
-        @click="onSubmit"
-      >
-        Поставить {{ responsible.length > 1 ? 'задачи' : 'задачу' }} (Ctrl+Enter)
+      <bx-button v-else color="success" type="submit" @click="onSubmit">
+        Поставить {{ data.responsible.length > 1 ? 'задачи' : 'задачу' }} (Ctrl+Enter)
       </bx-button>
-      <bx-button
-        v-if="assignedTasks.length"
-        color="light-border"
-        @click="clearForm"
-      >Новая задача</bx-button>
-      <div style="margin-left: 12px;">
+      <bx-button v-if="assignedTasks.length" color="light-border" @click="clearForm"
+        >Новая задача</bx-button
+      >
+      <div style="margin-left: 12px">
         {{ fullTitle }}
         <span v-if="assignedTasks.length">
-          (<span
-             v-for="(id, index) in assignedTasks"
-             :key="id"
-           >
-            <bx-link
-            :href="`/company/personal/user/${currentUser.id}/tasks/task/view/${id}/`"
-            >{{ id }}</bx-link>{{ index !== assignedTasks.length - 1 ? ', ' : '' }}
-          </span>)
+          (<span v-for="(id, index) in assignedTasks" :key="id">
+            <bx-link :href="getHref(id)">{{ id }}</bx-link
+            >{{ index !== assignedTasks.length - 1 ? ', ' : '' }} </span
+          >)
         </span>
       </div>
     </div>
   </form>
 </template>
 
-<script>
-import { mapState, mapActions } from 'pinia';
+<script setup lang="ts">
+import { computed, inject, onBeforeUnmount, onMounted, reactive, watch } from 'vue';
+import type { IBitrix24Library, IUser } from 'bitrix24-library';
+import BxButton from 'vue-bitrix24/BxButton';
+import BxInput from 'vue-bitrix24/BxInput';
+import BxEntitySelector from 'vue-bitrix24/BxEntitySelector';
+import BxAlert from 'vue-bitrix24/BxAlert';
+import BxTextarea from 'vue-bitrix24/BxTextarea';
+import BxInputDate from '../BitrixDatepicker.vue';
+import BxLink from '../AppLink.vue';
 import { useRootStore } from '@/stores/RootStore';
 import config from '@/config';
 
-export default {
-  methods: {
-    ...mapActions(useRootStore, ['getDeal', 'setTasks', 'updateTasks', 'deleteAssignedTasks']),
+const $BX24: IBitrix24Library | undefined = inject('$BX24');
+const store = useRootStore();
 
-    onAddManager() {
-      this.$BX24.selectUser().then((user) => {
-        this.manager = [user];
-        this.managerId = user.id;
-      });
+const users = computed(() => store.users);
+const currentUser: any = computed(() => store.currentUser);
+const currentDeal = computed(() => store.currentDeal);
+const isDeal = computed(() => store.isDeal);
+const assignedTasks = computed(() => store.assignedTasks);
+
+const data = reactive({
+  title: '',
+  description: '',
+  dealId: '',
+  managerId: '',
+  deadline: null,
+  deal: [] as any[],
+  manager: [] as any[],
+  responsible: [] as any[],
+  error: false,
+  errorText: '',
+});
+
+const fullTitle = computed(() => {
+  if (data.title) return [config.prefix, data.title].join('');
+  return '';
+});
+
+function getHref(id: string) {
+  return `/company/personal/user/${currentUser.value.id}/tasks/task/view/${id}/`;
+}
+
+function onAddManager() {
+  if (!$BX24) return;
+  $BX24.selectUser().then((user: IUser) => {
+    data.manager = [user];
+    data.managerId = user.id;
+  });
+}
+
+function onAddUsers() {
+  if (!$BX24) return;
+  $BX24.selectUsers().then((users: IUser[]) => {
+    users.forEach((user) => {
+      data.responsible.push(user);
+    });
+  });
+}
+
+function onAddDeal() {
+  if (!$BX24) return;
+  $BX24.selectCRM({ entityType: ['deal'] }).then((result: any) => {
+    const deal = result.deal[0];
+    const dealId = deal.id.substring(2);
+    data.dealId = deal.id;
+    data.deal = [deal];
+    store.getDeal(dealId);
+  });
+}
+
+function onUser(_: any, item: any) {
+  if ($BX24) $BX24.openLink(`/company/personal/user/${item.id}/`);
+}
+
+function onDeal(_: any, item: any) {
+  if ($BX24) $BX24.openLink(item.url);
+}
+
+function validateForm() {
+  if (!data.title) {
+    data.errorText = 'Не указано название задачи';
+  } else if (!data.responsible.length) {
+    data.errorText = 'Не указан ответственный';
+  }
+
+  if (data.errorText) {
+    data.error = true;
+
+    setTimeout(() => {
+      data.error = false;
+      data.errorText = '';
+    }, 5000);
+  }
+}
+
+function onSubmit() {
+  validateForm();
+  if (data.error) return;
+
+  const tasks = data.responsible.map((responsible: { id: string }) => ({
+    fields: {
+      TITLE: fullTitle.value,
+      DESCRIPTION: data.description,
+      UF_CRM_TASK: [data.dealId],
+      CREATED_BY: data.managerId,
+      RESPONSIBLE_ID: responsible.id,
+      DEADLINE: data.deadline,
     },
+  }));
 
-    onAddUsers() {
-      this.$BX24.selectUsers().then((users) => {
-        users.forEach((user) => {
-          this.responsible.push(user);
-        });
-      });
+  store.setTasks(tasks);
+}
+
+function onSubmitUpdate() {
+  validateForm();
+  if (data.error) return;
+
+  const tasks = assignedTasks.value.map((id: string) => ({
+    id,
+    fields: {
+      TITLE: fullTitle.value,
+      DESCRIPTION: data.description,
+      UF_CRM_TASK: [data.dealId],
+      CREATED_BY: data.managerId,
+      DEADLINE: data.deadline,
     },
+  }));
 
-    onAddDeal() {
-      this.$BX24.selectCRM({ entityType: ['deal'] }).then((result) => {
-        const deal = result.deal[0];
-        const dealId = deal.id.substring(2);
-        this.dealId = deal.id;
-        this.deal = [deal];
-        this.getDeal(dealId);
-      });
-    },
+  store.updateTasks(tasks);
+}
 
-    onUser(_, item) {
-      this.$BX24.openLink(`/company/personal/user/${item.id}/`);
-    },
+function clearForm() {
+  data.title = '';
+  data.description = '';
+  data.deadline = null;
+  data.responsible = [];
+  onDeleteDeal();
+  onDeleteManager();
+  store.deleteAssignedTasks();
+}
 
-    onDeal(_, item) {
-      this.$BX24.openLink(item.url);
-    },
+function onDeleteDeal() {
+  if (currentDeal.value) {
+    const { id } = currentDeal.value;
+    data.dealId = `D_${id}`;
+    data.deal = [currentDeal.value];
+  } else {
+    data.dealId = '';
+    data.deal = [];
+  }
+}
 
-    validateForm() {
-      if (!this.title) {
-        this.errorText = 'Не указано название задачи';
-      } else if (!this.responsible.length) {
-        this.errorText = 'Не указан ответственный';
-      }
+function onDeleteManager() {
+  data.managerId = currentUser.value.id;
+  data.manager = [currentUser.value];
+}
 
-      if (this.errorText) {
-        this.error = true;
+function onDeleteUser(index: number) {
+  data.responsible.splice(index, 1);
+}
 
-        setTimeout(() => {
-          this.error = false;
-          this.errorText = '';
-        }, 5000);
-      }
-    },
+function alertClose() {
+  data.error = false;
+  data.errorText = '';
+}
 
-    onSubmit() {
-      this.validateForm();
-      if (this.error) return;
+function onKeydown(e: KeyboardEvent) {
+  const isCtrlEnter = e.ctrlKey && e.code === 'Enter';
 
-      const tasks = this.responsible.map((responsible) => ({
-        fields: {
-          TITLE: this.fullTitle,
-          DESCRIPTION: this.description,
-          UF_CRM_TASK: [this.dealId],
-          CREATED_BY: this.managerId,
-          RESPONSIBLE_ID: responsible.id,
-          DEADLINE: this.deadline,
-        },
-      }));
+  if (isCtrlEnter) {
+    e.preventDefault();
+    if (assignedTasks.value.length) onSubmitUpdate();
+    else onSubmit();
+  }
+}
 
-      this.setTasks(tasks);
-    },
+watch(currentUser, (user: any) => {
+  data.managerId = user.id;
+  data.manager = [user];
+});
 
-    onSubmitUpdate() {
-      this.validateForm();
-      if (this.error) return;
+watch(currentDeal, (deal: any) => {
+  if (deal) {
+    data.dealId = `D_${deal.id}`;
+    data.deal = [deal];
+    data.managerId = deal.assignedId;
+    // @ts-ignore
+    const user = users.value[deal.assignedId];
+    data.manager = [user];
+  }
+});
 
-      const tasks = this.assignedTasks.map((id) => ({
-        id,
-        fields: {
-          TITLE: this.fullTitle,
-          DESCRIPTION: this.description,
-          UF_CRM_TASK: [this.dealId],
-          CREATED_BY: this.managerId,
-          DEADLINE: this.deadline,
-        },
-      }));
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown);
+});
 
-      this.updateTasks(tasks);
-    },
-
-    clearForm() {
-      this.title = '';
-      this.description = '';
-      this.deadline = null;
-      this.responsible = [];
-      this.onDeleteDeal();
-      this.onDeleteManager();
-      this.deleteAssignedTasks();
-    },
-
-    onDeleteDeal() {
-      if (this.currentDeal) {
-        this.dealId = `D_${this.currentDeal.id}`;
-        this.deal = [this.currentDeal];
-      } else {
-        this.dealId = '';
-        this.deal = [];
-      }
-    },
-
-    onDeleteManager() {
-      this.managerId = this.currentUser.id;
-      this.manager = [this.currentUser];
-    },
-
-    onDeleteUser(index) {
-      this.responsible.splice(index, 1);
-    },
-
-    alertClose() {
-      this.error = false;
-      this.errorText = '';
-    },
-
-    onKeydown(e) {
-      const isCtrlEnter = e.ctrlKey && e.code === 'Enter';
-
-      if (isCtrlEnter) {
-        e.preventDefault();
-        if (this.assignedTasks.length) this.onSubmitUpdate();
-        else this.onSubmit();
-      }
-    },
-  },
-  computed: {
-    ...mapState(useRootStore, ['users', 'currentUser', 'currentDeal', 'isDeal', 'assignedTasks']),
-
-    fullTitle() {
-      if (this.title) return [config.prefix, this.title].join('');
-      return '';
-    },
-  },
-  watch: {
-    currentUser(user) {
-      this.managerId = user.id;
-      this.manager = [user];
-    },
-    currentDeal(deal) {
-      if (deal) {
-        this.dealId = `D_${deal.id}`;
-        this.deal = [deal];
-        this.managerId = deal.assignedId;
-        this.manager = [this.users[deal.assignedId]];
-      }
-    },
-  },
-  created() {
-    window.addEventListener('keydown', this.onKeydown);
-  },
-  beforeUnmount() {
-    window.removeEventListener('keydown', this.onKeydown);
-  },
-  data() {
-    return {
-      title: '',
-      description: '',
-      dealId: '',
-      managerId: '',
-      deadline: null,
-      deal: [],
-      manager: [],
-      responsible: [],
-      error: false,
-      errorText: '',
-    };
-  },
-  inject: ['$BX24'],
-  name: 'setter-task',
-};
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown);
+});
 </script>
 
-<style lang="stylus">
-body
-  background-color rgb(238, 242, 244)
-#app
-  padding 20px 20px 0
+<style lang="scss">
+body {
+  background-color: rgb(238, 242, 244);
+}
 
-.setter-task
-  padding 15px
-  background-color #fff
-  border-radius 10px
-  &__submit
-    position fixed
-    left 0
-    right 0
-    bottom 0
-    z-index 1
-    display flex
-    column-gap 12px
-    align-items center
-    padding 15px 15px 5px
-    margin-top 5px
-    box-shadow 0 -2px 4px 0 #c6c9cb
-    background-color #ffffff
-  .datepicker
-    display inline-block
-  textarea
-    border 0
+#app {
+  padding: 20px 20px 0;
+}
 
-.form-input-group
-  padding 0 5px
-  margin 6px 0 0
-  background-color #f8f9fa
-  list-style-type none
-  border-radius 8px
-  &__item + &__item
-    border-top 1px solid #e6e9ec
-  &__item
-    padding 11px 30px 11px 0
-    margin 0 20px
-  &__title
-    color #5e6675
-    font-size 14px
-    text-align left
-    padding-right 10px
-    line-height 20px
-    display inline-block
-    vertical-align middle
-    width 130px
-    margin 11px 4px 11px 0
-    float left
+.setter-task {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+
+  &__submit {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    column-gap: 12px;
+    align-items: center;
+    padding: 15px 15px 5px;
+    margin-top: 5px;
+    box-shadow: 0 -2px 4px 0 #c6c9cb;
+    background-color: #ffffff;
+  }
+
+  .datepicker {
+    display: inline-block;
+  }
+
+  textarea {
+    border: 0;
+  }
+}
+
+.form-input-group {
+  padding: 0 5px;
+  margin: 6px 0 0;
+  background-color: #f8f9fa;
+  list-style-type: none;
+  border-radius: 8px;
+
+  &__item + &__item {
+    border-top: 1px solid #e6e9ec;
+  }
+
+  &__item {
+    padding: 11px 30px 11px 0;
+    margin: 0 20px;
+  }
+
+  &__title {
+    color: #5e6675;
+    font-size: 14px;
+    text-align: left;
+    padding-right: 10px;
+    line-height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 130px;
+    margin: 11px 4px 11px 0;
+  }
+}
 </style>

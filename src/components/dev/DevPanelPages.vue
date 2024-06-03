@@ -6,47 +6,41 @@
     :title="page.title"
     v-bind="$attrs"
   >
-    <app-icon :icon="page.icon"></app-icon>
+    <slot :icon="page.icon"></slot>
   </router-link>
 </template>
 
-<script>
-import AppIcon from '../AppIcon.vue';
+<script setup lang="ts">
+import { defineOptions, reactive, computed, inject } from 'vue';
+import type { IBitrix24Library } from 'bitrix24-library';
 
-export default {
-  computed: {
-    isAdmin() {
-      return this.$BX24.isAdmin();
-    },
-
-    pages() {
-      if (this.isAdmin) return this.buttons;
-      return this.buttons.filter((btn) => !btn.admin);
-    },
-  },
-  data() {
-    return {
-      buttons: [
-        {
-          admin: true,
-          path: '/',
-          title: 'На главную',
-          icon: 'mdiHome',
-        },
-        {
-          admin: true,
-          path: '/placement',
-          title: 'Настройки встраивания',
-          icon: 'mdiTools',
-        },
-      ],
-    };
-  },
+defineOptions({
   inheritAttrs: false,
-  inject: ['$BX24'],
-  components: {
-    AppIcon,
-  },
-  name: 'dev-panel-pages',
-};
+});
+
+const $BX24: IBitrix24Library | undefined = inject('$BX24');
+
+const data = reactive({
+  buttons: [
+    {
+      admin: true,
+      path: '/',
+      title: 'На главную',
+      icon: 'mdiHome',
+    },
+    {
+      admin: true,
+      path: '/placement-page',
+      title: 'Настройки встраивания',
+      icon: 'mdiTools',
+    },
+  ],
+});
+
+const isAdmin = computed(() => ($BX24 ? $BX24.isAdmin() : false));
+
+const pages = computed(() => {
+  if (isAdmin.value) return data.buttons;
+  return data.buttons.filter((btn) => !btn.admin);
+});
 </script>

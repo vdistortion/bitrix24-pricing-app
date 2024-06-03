@@ -1,45 +1,52 @@
 <template>
   <div v-if="isVisible" class="dev-panel">
-    <dev-panel-reload class="dev-panel__button-icon"></dev-panel-reload>
-    <dev-panel-pages class="dev-panel__button-icon"></dev-panel-pages>
-    <dev-panel-download class="dev-panel__button-icon"></dev-panel-download>
+    <dev-panel-reload class="dev-panel__button-icon">
+      <app-icon icon="mdiReload"></app-icon>
+    </dev-panel-reload>
+    <dev-panel-pages class="dev-panel__button-icon">
+      <template #default="{ icon }">
+        <app-icon :icon="icon"></app-icon>
+      </template>
+    </dev-panel-pages>
+    <dev-panel-download class="dev-panel__button-icon">
+      <app-icon icon="mdiDownload"></app-icon>
+    </dev-panel-download>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, inject } from 'vue';
+import type { IBitrix24Library } from 'bitrix24-library';
+import env from '@/env';
 import DevPanelReload from './DevPanelReload.vue';
 import DevPanelPages from './DevPanelPages.vue';
 import DevPanelDownload from './DevPanelDownload.vue';
-import env from '../../env';
+import AppIcon from '../AppIcon.vue';
 
-export default {
-  computed: {
-    isVisible() {
-      return env.get('TEST_DOMAINS').includes(this.$BX24.getDomain());
-    },
-  },
-  inject: ['$BX24'],
-  components: {
-    DevPanelReload,
-    DevPanelPages,
-    DevPanelDownload,
-  },
-  name: 'dev-panel',
-};
+const $BX24: IBitrix24Library | undefined = inject('$BX24');
+
+const isVisible = computed(() => $BX24 && env.get('TEST_DOMAINS').includes($BX24.getDomain()));
 </script>
 
-<style lang="stylus">
-.dev-panel
-  display flex
-  align-items center
-  justify-content space-between
-  &__button-icon
-    text-decoration none
-    transition opacity .4s
-    opacity .4
-    color rgba(0, 0, 0, .5)
-    &:first-child
-      margin-right auto
-    &:hover
-      opacity 1
+<style lang="scss">
+.dev-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__button-icon {
+    text-decoration: none;
+    transition: opacity 0.4s;
+    opacity: 0.4;
+    color: rgba(0, 0, 0, 0.5);
+
+    &:first-child {
+      margin-right: auto;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
 </style>

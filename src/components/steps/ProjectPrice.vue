@@ -3,12 +3,10 @@
   <pre>{{ currentTask }}</pre>
 </template>
 
-<script>
-import { mapState } from 'pinia';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { useRootStore } from '@/stores/RootStore';
 
-export default {
-  computed: mapState(useRootStore, ['currentTask']),
-  name: 'project-price',
-};
+const store = useRootStore();
+const currentTask = computed(() => store.currentTask);
 </script>

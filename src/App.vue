@@ -1,31 +1,26 @@
 <template>
   <dev-panel></dev-panel>
-  <the-breadcrumbs v-if="isDeal"></the-breadcrumbs>
+  <app-breadcrumbs v-if="isDeal"></app-breadcrumbs>
   <router-view></router-view>
 </template>
 
-<script>
-import { mapState, mapActions } from 'pinia';
-import { useRootStore } from './stores/RootStore';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRootStore } from '@/stores/RootStore';
 import DevPanel from './components/dev/DevPanel.vue';
-import TheBreadcrumbs from './components/TheBreadcrumbs.vue';
+import AppBreadcrumbs from './components/AppBreadcrumbs.vue';
 
-export default {
-  methods: mapActions(useRootStore, ['init']),
-  computed: mapState(useRootStore, ['isDeal']),
-  created() {
-    this.init().catch(console.warn);
-  },
-  components: {
-    DevPanel,
-    TheBreadcrumbs,
-  },
-  name: 'app',
-};
+const store = useRootStore();
+const isDeal = computed(() => store.isDeal);
+
+store.init().catch(console.warn);
 </script>
 
-<style lang="stylus">
-body
-  font-family Roboto, sans-serif
-  margin 0
+<style lang="scss">
+@import 'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900&display=swap';
+
+body {
+  font-family: 'Roboto Flex', sans-serif;
+  margin: 0;
+}
 </style>

@@ -1,13 +1,21 @@
-# bitrix24-pricing
+# bitrix24-pricing-app
+
+### Запуск
+
+```sh
+# в корне проекта
+cp .env .env.development
+npm run dev
+```
 
 ### Команды
 
 ```bash
-npm run dev   # development на локалке
-npm run watch # development на сервере (записывает файлы на диск и следит за изменениями)
-npm run build # production и сборка архива с приложением первого типа
-npm run lint  # проверка кода
-npm run grid  # пересборка сетки
+npm run dev    # development на локалке
+npm run watch  # development на сервере (записывает файлы на диск и следит за изменениями)
+npm run build  # production и сборка архива с приложением первого типа
+npm run format # prettier
+npm run grid   # пересборка сетки
 ```
 
 #### Поиск файлов
@@ -19,27 +27,13 @@ npm run grep full # подробно
 
 ### Структура
 
-#### /ajax/
-Каталог для API (для приложений второго типа)
-
-#### /public/index.php
-Просто подключает index.html, если сервер не настроен открывать файлы .html
-
-#### /public/constants.js
-Глобальные переменные, которые можно менять без пересборки
-```js
-window.appName = 'Приложение';
-window.appNameEng = 'Application';
-window.appCodeName = 'bitrix24-pricing';
-```
-
 #### /.env
 ```dotenv
 # список скоупов, необходимых для работы приложения
 VITE_SCOPE=[]
 
-# список сторонних скриптов, которые нужно подключить до загрузки приложения
-VITE_SCRIPTS=[]
+# название приложения
+VITE_APP_NAME=""
 
 # список мест для встраивания приложения
 VITE_PLACEMENT=[]
@@ -48,32 +42,14 @@ VITE_PLACEMENT=[]
 VITE_TEST_DOMAINS=[]
 ```
 
-#### /src/config.js
-
-```js
-export default {
-  global: {}, // глобальные переменные
-  path: {
-    root: '/', // путь до корня проекта
-    handler: '/index.html', // полный путь к индексному файлу
-    ajaxUrl: '/ajax/', // адрес для обращения к API
-  },
-};
-```
-В __global__ записываются значения из __/public/constants.js__<br>
-Также в __global__ доступны следующие переменные:
-* __global.appDirName__ - директория_приложения
-* __global.archiveName__ - директория_приложения.zip
-* __global.isDev__, __global.isProd__ и __global.isWatch__ - boolean
-
 #### /src/api/
 
 ```bash
-/src/api/index.js # запросы к /ajax/
-/src/api/Ajax.js # подключение axios
-/src/api/bitrix/index.js # класс для работы с API Битрикс24
-/src/api/bitrix/requestList.php # batch-запросы
-/src/api/bitrix/handlerList.php # обработка ответов
+/src/api/index.ts # запросы к серверу
+/src/api/HttpClient.ts # подключение axios
+/src/api/bitrix/index.ts # класс для работы с API Битрикс24
+/src/api/bitrix/requestList.ts # batch-запросы
+/src/api/bitrix/handlerList.ts # обработка ответов
 ```
 
 #### /src/components/dev/
@@ -81,7 +57,8 @@ export default {
 * Обновление фрейма
 * Скачивание архива с приложением первого типа
 * Страница для администраторов портала со списком встраиваний (placement)
-* Страница со списком компонентов плагина vue-bitrix24
+* Страница со списком компонентов плагина `vue-bitrix24`
+* Отображается на порталах из списка `VITE_TEST_DOMAINS` (`.env`)
 
 #### /src/views/
 Список страниц приложения
@@ -93,26 +70,45 @@ export default {
 
 ### Подключение vue-bitrix24
 
-```js
-// src/main.js
+```ts
+// src/main.ts
 import { createApp } from 'vue';
-import { Bitrix24, useBitrix24 } from './plugins/vue-bitrix24';
+import Bitrix24 from 'bitrix24-library';
 import App from './App.vue';
 
 Bitrix24.init().then((BX24) => {
   createApp(App)
-    .use(useBitrix24)
     .provide('$BX24', BX24)
     .mount('#app');
 });
 ```
 
+### Подключение к Битрикс24
+* Создайте локальное приложение на существующем портале по ссылке https://DOMAIN.bitrix24.ru/devops/section/standard/
+  * Или создайте новый портал https://www.bitrix24.ru/create.php (для регистрации лучше использовать временную почту, например https://temp-mail.org/ru/)
+* "Путь вашего обработчика":
+  * `http://127.0.0.1:4200/index.html` для локальной разработки (`npm run dev`)
+  * `ПУТЬ_ДО_ПРИЛОЖЕНИЯ_НА_СЕРВЕРЕ/dist/index.html` для стандартной разработки (`npm run watch`)
+* Список установленных приложений можно посмотреть тут https://DOMAIN.bitrix24.ru/devops/list/
+
 ### Ссылки
+* Vue (https://vuejs.org/)
 * Pinia (https://pinia.vuejs.org/core-concepts/)
 * Vite (https://vitejs.dev/config/)
 * archiver (https://www.archiverjs.com/docs/quickstart)
+* axios (https://axios-http.com/ru/)
+* TypeScript (https://www.typescriptlang.org/)
 * REST API (https://dev.1c-bitrix.ru/rest_help/whatsnew.php)
+
+#### Связанные пакеты
+* bitrix24-stickerpack-app (https://github.com/astrotrain55/bitrix24-stickerpack-app)
+* bitrix24-library (https://www.npmjs.com/package/bitrix24-library)
+* vue-bitrix24 (https://www.npmjs.com/package/vue-bitrix24)
 
 #### Сетка smartgrid
 * [Документация](https://www.npmjs.com/package/smart-grid)
 * Авторское описание на [YouTube](https://www.youtube.com/playlist?list=PLyeqauxei6je28tJvioIsE0bYnARh0UVz)
+
+___
+
+Based on [bitrix24-create-app](https://www.npmjs.com/package/bitrix24-create-app)

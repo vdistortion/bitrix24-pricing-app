@@ -2,17 +2,6 @@
   <generation-tasks></generation-tasks>
 </template>
 
-<script>
+<script setup lang="ts">
 import GenerationTasks from '../components/steps/GenerationTasks.vue';
-
-export default {
-  components: {
-    GenerationTasks,
-  },
-  name: 'tasks-page',
-};
 </script>
-
-<style lang="stylus">
-
-</style>
