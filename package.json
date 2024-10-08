@@ -1,6 +1,7 @@
 {
   "name": "bitrix24-pricing-app",
   "version": "1.0.0",
+  "license": "GPL",
   "private": true,
   "type": "module",
   "scripts": {
