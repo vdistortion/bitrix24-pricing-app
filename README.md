@@ -79,7 +79,7 @@ Bitrix24.init().then((BX24) => {
 - Создайте локальное приложение на существующем портале по ссылке https://DOMAIN.bitrix24.ru/devops/section/standard/
   - Или создайте новый портал https://www.bitrix24.ru/create.php (для регистрации лучше использовать временную почту, например https://temp-mail.org/ru/)
 - "Путь вашего обработчика":
-  - `http://127.0.0.1:4200/index.html` для локальной разработки (`npm run dev`)
+  - `http://127.0.0.1:5173/index.html` для локальной разработки (`npm run dev`)
   - `ПУТЬ_ДО_ПРИЛОЖЕНИЯ_НА_СЕРВЕРЕ/dist/index.html` для стандартной разработки (`npm run watch`)
 - Список установленных приложений можно посмотреть тут https://DOMAIN.bitrix24.ru/devops/list/
 
@@ -94,7 +94,7 @@ Bitrix24.init().then((BX24) => {
 
 #### Связанные пакеты
 
-- bitrix24-stickerpack-app (https://github.com/astrotrain55/bitrix24-stickerpack-app)
+- bitrix24-stickerpack-app (https://github.com/vdistortion/bitrix24-stickerpack-app)
 - bitrix24-library (https://www.npmjs.com/package/bitrix24-library)
 - vue-bitrix24 (https://www.npmjs.com/package/vue-bitrix24)
 
