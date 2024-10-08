@@ -34,40 +34,42 @@
     <ul class="form-input-group">
       <li v-if="!isDeal" class="form-input-group__item">
         <span class="form-input-group__title">Сделка</span>
-        <bx-entity-selector
+        <bx-tag-selector
           :list="data.deal"
-          displayField="title"
+          display-field-name="title"
           inline
           clickable
           @add="onAddDeal"
           @click="onDeal"
           @delete="onDeleteDeal"
-        ></bx-entity-selector>
+        ></bx-tag-selector>
       </li>
       <li class="form-input-group__item">
         <span class="form-input-group__title">Постановщик</span>
-        <bx-entity-selector
+        <bx-tag-selector
           :list="data.manager"
+          display-field-name="name"
           inline
           clickable
           @add="onAddManager"
           @click="onUser"
           @delete="onDeleteManager"
-        ></bx-entity-selector>
+        ></bx-tag-selector>
       </li>
       <li v-if="!assignedTasks.length" class="form-input-group__item">
         <span class="form-input-group__title">
           {{ form.responsible.length > 1 ? 'Ответственные' : 'Ответственный' }}
         </span>
-        <bx-entity-selector
+        <bx-tag-selector
           :list="form.responsible"
+          display-field-name="name"
           inline
           multiple
           clickable
           @add="onAddUsers"
           @click="onUser"
           @delete="onDeleteUser"
-        ></bx-entity-selector>
+        ></bx-tag-selector>
       </li>
       <li class="form-input-group__item">
         <span class="form-input-group__title">Крайний срок</span>
@@ -107,11 +109,7 @@ import { computed, inject, onBeforeUnmount, onMounted, reactive, watch, type Ref
 import { useVuelidate, type Validation } from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import type { IBitrix24Library, IUser } from 'bitrix24-library';
-import BxButton from 'vue-bitrix24/BxButton';
-import BxInput from 'vue-bitrix24/BxInput';
-import BxEntitySelector from 'vue-bitrix24/BxEntitySelector';
-import BxAlert from 'vue-bitrix24/BxAlert';
-import BxTextarea from 'vue-bitrix24/BxTextarea';
+import { BxButton, BxInput, BxTagSelector, BxAlert, BxTextarea } from 'vue-bitrix24';
 import BitrixDatepicker from '../BitrixDatepicker.vue';
 import AppLink from '../AppLink.vue';
 import { useRootStore } from '@/stores/RootStore';
@@ -350,6 +348,7 @@ body {
   }
 
   &__item {
+    display: flex;
     padding: 11px 30px 11px 0;
     margin: 0 20px;
   }

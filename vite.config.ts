@@ -16,4 +16,11 @@ export default defineConfig({
       allow: ['..'],
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler', // or "modern"
+      },
+    },
+  },
 });
