@@ -47,8 +47,6 @@ VITE_TEST_DOMAINS=[]
 #### /src/api/
 
 ```bash
-/src/api/index.ts # запросы к серверу
-/src/api/HttpClient.ts # подключение axios
 /src/api/bitrix/index.ts # класс для работы с API Битрикс24
 /src/api/bitrix/requestList.ts # batch-запросы
 /src/api/bitrix/handlerList.ts # обработка ответов
@@ -91,7 +89,6 @@ Bitrix24.init().then((BX24) => {
 - Pinia (https://pinia.vuejs.org/core-concepts/)
 - Vite (https://vitejs.dev/config/)
 - archiver (https://www.archiverjs.com/docs/quickstart)
-- axios (https://axios-http.com/ru/)
 - TypeScript (https://www.typescriptlang.org/)
 - REST API (https://dev.1c-bitrix.ru/rest_help/whatsnew.php)
 
